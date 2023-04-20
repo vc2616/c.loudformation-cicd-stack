@@ -1,0 +1,86 @@
+parameters:
+  RoleTempName:
+    Description: Name of the base stack with all infra resources
+    type: string
+    Default: cicds3role
+  MYIP:
+    Type: String
+  KeyName:
+    Type: String
+  instanceType:
+    Type: String
+    Default: t2.micro
+
+  Mappings:
+    AmiRegionMap:
+     us-east-1:
+       AMI: ami-02396cdd13e9a1257
+     us-east-2:
+       AMI: ami-0578f2b35d0328762
+     us-east-1:
+       AMI: ami-02396cdd13e9a1257
+     us-east-2:
+       AMI: ami-0578f2b35d0328762
+     us-east-1:
+       AMI: ami-02396cdd13e9a1257
+     us-east-2:
+       AMI: ami-0578f2b35d0328762
+
+Resources:
+  JenkinsInst:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      InstanceType: !Ref InstanseType
+      KeyName: !Ref KeyName
+      imageId: !FindInMap
+        - AmiRegionMap
+        - !Ref AWS::Region
+        - AMI
+      Tags:
+        - Key: "Name"
+          Value: !join
+            - ""
+            - - "Jenkins in"
+              - !Ref AWS::Region
+      SecurityGroups:
+        - !Ref JenkinsSG
+      IamInstanceProfile:
+        Fn::ImportValue:
+          Fn::Sub: "${RoleTempName}-VPS3RoleProfileName"
+      UserData:
+        Fn::Base64:
+          !sub |
+          #!/bin/bash
+          sudo apt update
+          sudo apt install openjdk-8-jdk -y
+          sudo apt install maven git wget unzip -y
+          sudo apt install awscli -y
+          wget -q -0 - https://pkj.jenkins.io/debion-stable binary/ > /etc/apt/source
+          sodo sh -c 'echo deb https://pkg.jenkins.io/debion-stable binary/> /etc/apt/source
+          sudo apt-get update
+          sudo apt-get install jenklins -y
+          sleep 10
+          systemctl stop jenkins
+          sleep
+          aws s3 cp s3://cicd-data=vprofile/jenkins_cicdjobs.tar.gz /var/lib
+          cd/var/lib/
+          tar xzvf jenkins_cicdjobs.tar.gz
+          chown jenkins.jenkins /var/lib/jenkins -R
+          reboot
+
+ JenkinsSG:
+   Type: 'AWS::EC2::SecurityGroup'
+   Properties:
+     GroupName: jenkinsSG
+     GroupDescription: Allow SSH & HTTP from myip
+     SecurityGroupIngress:
+     - IpProtocol: tcp
+       FromPort: '22'
+       ToPort: '22'
+       CidrIp: !ref MyIP
+
+    -  Protocol: tcp
+       FromPort: '0000'
+       ToPort: '0000'
+       CidrIp: !ref MyIP
+
