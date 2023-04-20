@@ -32,3 +32,9 @@ Resources:
       Path: "/"
       Roles:
         - !Ref VPS3Role
+Outputs:
+  VPs3rolDetails:
+    Description: VP CICD Pro s3 role info
+    Value: !Ref VPInstanceProfile
+    Export:
+      Name: cicds3role-VPS3RoleProfileName
