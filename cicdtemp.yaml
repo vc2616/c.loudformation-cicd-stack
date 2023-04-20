@@ -1,0 +1,63 @@
+parameters:
+  keypair:
+    description: cicd stack key
+    type: "AWS::EC2::KeyPair::KeyName"
+  MYIP:
+    description: assigning IP
+    type: string
+    default: 183.83.39.195/32
+Resources:
+  S3RoleforCiCd
+    Type: AWS::cloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.amazonaws.com/vprofile-cicd-templates/stack-template/
+  jenkinsInst:
+    Type: AWS::cloudFormation::Stack
+    DepandsOn: S3RoleforCiCd
+    Properties:
+      TemplateURL: https://s3.amazonaws.com/vprofile-cicd-templates/stack-template/
+      parameters:
+        KeyName: !Ref KeyPair
+        MYIP: !Ref MyIP
+  App01qa:
+    Type: AWS::cloudFormation::Stack
+    DepandsOn: jenkinsInst
+    Properties:
+      TemplateURL: https://s3.amazonaws.com/vprofile-cicd-templates/stack-template/
+      parameters:
+        KeyName: !Ref KeyPair
+        MYIP: !Ref MyIP
+  NexusServer:
+    Type: AWS::cloudFormation::Stack
+    DepandsOn: jenkinsInst
+    Properties:
+      TemplateURL: https://s3.amazonaws.com/vprofile-cicd-templates/stack-template/
+      parameters:
+        KeyName: !Ref KeyPair
+        MYIP: !Ref MyIP
+  SonarServer:
+    Type: AWS::cloudFormation::Stack
+    DepandsOn: jenkinsInst
+    Properties:
+      TemplateURL: https://s3.amazonaws.com/vprofile-cicd-templates/stack-template/
+      parameters:
+        KeyName: !Ref KeyPair
+        MYIP: !Ref MyIP
+  dbo1qa:
+    Type: AWS::cloudFormation::Stack
+    DepandsOn: App01qa
+    Properties:
+      TemplateURL: https://s3.amazonaws.com/vprofile-cicd-templates/stack-template/
+      parameters:
+        KeyName: !Ref KeyPair
+        MYIP: !Ref MyIP
+  WintestServer:
+    Type: AWS::cloudFormation::Stack
+    DepandsOn: App01qa
+    Properties:
+      TemplateURL: https://s3.amazonaws.com/vprofile-cicd-templates/stack-template/
+      parameters:
+        KeyName: !Ref KeyPair
+        MYIP: !Ref MyIP
+
+
