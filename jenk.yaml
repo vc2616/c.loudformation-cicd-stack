@@ -77,10 +77,24 @@ Resources:
      - IpProtocol: tcp
        FromPort: '22'
        ToPort: '22'
-       CidrIp: !ref MyIP
+       CidrIp: !Ref MyIP
 
     -  Protocol: tcp
        FromPort: '0000'
        ToPort: '0000'
-       CidrIp: !ref MyIP
-
+       CidrIp: !Ref MyIP
+Outputs:
+  MyEC2InstancePublikIP:
+    Value: !GetAtt JenkinsInst.PublicIP
+  MyEC2InstansePrivateIP:
+    Value: !GetAtt JenkinsInst.PrivateIP
+  MyInstanceID:
+    Value: !Ref JenkinsInst
+  JenksecurityGroupId:
+    Description: Security Group 1 ID
+    Value:
+      Fn::GetAtt:
+        - jenkinsSG
+        - GroupId
+      Export:
+        Name: jenk-SGID
